@@ -12,6 +12,7 @@
 	<properties>
 		<java-version>1.8</java-version>
 		<springframework.version>5.1.4.RELEASE</springframework.version>
+		<spring-security.version>5.1.3.RELEASE</spring-security.version>
 		<jackson.version>2.9.4</jackson.version>
 		<springmongodb.version>2.1.4.RELEASE</springmongodb.version>
 	</properties>
@@ -26,17 +27,27 @@
 			<artifactId>spring-data-mongodb</artifactId>
 			<version>${springmongodb.version}</version>
 		</dependency>
+
+		<!-- Bean Validation API and RI -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>5.4.0.Final</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -57,6 +68,13 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
 	</build>
 
 </project>

@@ -1,4 +1,4 @@
-package com.gdn.afrizal.playground.spring.config;
+package com.gdn.afrizal.playground.spring.web.config;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 

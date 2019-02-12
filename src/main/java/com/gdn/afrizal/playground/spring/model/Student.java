@@ -14,8 +14,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {
-    private Long nationalId;
     private Long id;
+    private Long nationalId;
     private Boolean active;
     private Long facultyId;
     private Long programId;
