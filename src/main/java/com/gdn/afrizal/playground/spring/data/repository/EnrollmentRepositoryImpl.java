@@ -24,7 +24,7 @@ public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository {
     return this.mongoTemplate.find(query, Enrollment.class);
   }
 
-  public Enrollment findByStudentIdAndCourseId(Long studentId, Long courseId) {
+  public Enrollment findByStudentIdAndCourseId(Long studentId, String courseId) {
     final Query query = new Query(where("studentId").is(studentId).and("courseId").is(courseId));
     return this.mongoTemplate.findOne(query, Enrollment.class);
   }

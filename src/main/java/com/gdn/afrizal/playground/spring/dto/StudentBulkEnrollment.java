@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentBulkEnrollment {
-  private List<String> studentIds;
+  private List<Long> studentIds;
   private List<Enrollment> enrollments;
   private String courseId;
 }

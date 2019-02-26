@@ -14,7 +14,7 @@ public class StudentRepositoryImpl implements StudentCustomRepository {
   private MongoTemplate mongoTemplate;
 
   public Student findByStudentId(Long studentId) {
-    final Query query = new Query(where("studentId").is(studentId).and("active").is(true));
+    final Query query = new Query(where("id").is(studentId).and("active").is(true));
     return this.mongoTemplate.findOne(query, Student.class);
   }
 

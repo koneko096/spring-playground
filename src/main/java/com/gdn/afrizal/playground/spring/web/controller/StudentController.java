@@ -8,7 +8,6 @@ import com.gdn.afrizal.playground.spring.dto.StudentBulkEnrollment;
 import com.gdn.afrizal.playground.spring.dto.StudentEnrollment;
 import com.gdn.afrizal.playground.spring.dto.StudentRegistration;
 import com.gdn.afrizal.playground.spring.dto.validation.ValidationError;
-import com.gdn.afrizal.playground.spring.model.Course;
 import com.gdn.afrizal.playground.spring.model.Enrollment;
 import com.gdn.afrizal.playground.spring.model.Student;
 import com.gdn.afrizal.playground.spring.model.StudentAccount;
@@ -25,9 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,9 +40,6 @@ import java.util.List;
 public class StudentController {
 
     private static final String STUDENT_ID = "studentId";
-
-    @Autowired
-    EnrollmentRepository enrollmentRepository;
 
     @Autowired
     StudentRepository studentRepository;
@@ -80,20 +74,28 @@ public class StudentController {
     }
 
     @RequestMapping(value = Routes.ENROLLMENT_OF_STUDENT, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Enrollment> getEnrollments(@PathVariable(STUDENT_ID) Long studentId) {
-        return enrollmentRepository.findByStudentId(studentId);
+    public List<StudentEnrollment> getEnrollments(@PathVariable(STUDENT_ID) Long studentId) {
+        return enrollmentService.findByStudentId(studentId);
     }
 
     @RequestMapping(value = Routes.ENROLLMENT_OF_STUDENT_COURSE, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Enrollment> getEnrollment(@PathVariable(STUDENT_ID) Long studentId,
-        @PathVariable("courseId") Long courseId) {
-        return new ResponseEntity<>(enrollmentRepository.findByStudentIdAndCourseId(studentId,
-            courseId), HttpStatus.OK);
+    public ResponseEntity getEnrollment(@PathVariable(STUDENT_ID) Long studentId,
+        @PathVariable("courseId") String courseId) {
+      StudentEnrollment studentEnrollment =
+          enrollmentService.findByStudentIdAndCourseId(studentId, courseId);
+      if (studentEnrollment == null) {
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
+      }
+      return new ResponseEntity<>(studentEnrollment, HttpStatus.OK);
     }
 
     @RequestMapping(value = Routes.STUDENT, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStudent(@PathVariable(STUDENT_ID) Long studentId) {
-        return new ResponseEntity<>(studentRepository.findByStudentId(studentId), HttpStatus.OK);
+      Student student = studentRepository.findByStudentId(studentId);
+      if (student == null) {
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
+      }
+      return new ResponseEntity<>(student, HttpStatus.OK);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -132,7 +134,12 @@ public class StudentController {
 
     @RequestMapping(value = Routes.PROGRAM_COURSES, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getCourseOfProgram(@PathVariable("programId") Long programId) {
-        return new ResponseEntity<List<Course>>(courseRepository.findCoursesByProgramId(programId), HttpStatus.OK);
+        return new ResponseEntity<>(courseRepository.findCoursesByProgramId(programId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = Routes.PROGRAM_STUDENTS, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getStudentsOfProgram(@PathVariable("programId") Long programId) {
+      return new ResponseEntity<>(studentRepository.findByProgramId(programId), HttpStatus.OK);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -153,27 +160,4 @@ public class StudentController {
         return (programId * 100000) + (year % 100 * 1000) +
             (studentRepository.countByProgramId(programId) + 1);
     }
-    //
-//    @DeleteMapping("/customers/{id}")
-//    public ResponseEntity deleteCustomer(@PathVariable Long id) {
-//
-//        if (null == customerDAO.delete(id)) {
-//            return new ResponseEntity("No Customer found for ID " + id, HttpStatus.NOT_FOUND);
-//        }
-//
-//        return new ResponseEntity(id, HttpStatus.OK);
-//
-//    }
-//
-//    @PutMapping("/customers/{id}")
-//    public ResponseEntity updateCustomer(@PathVariable Long id, @RequestBody Customer customer) {
-//
-//        customer = customerDAO.update(id, customer);
-//
-//        if (null == customer) {
-//            return new ResponseEntity("No Customer found for ID " + id, HttpStatus.NOT_FOUND);
-//        }
-//
-//        return new ResponseEntity(customer, HttpStatus.OK);
-//    }
 }

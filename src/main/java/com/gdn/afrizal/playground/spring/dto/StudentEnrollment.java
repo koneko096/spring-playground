@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentEnrollment {
-    private Student student;
     private Enrollment enrollment;
     private Course course;
 }

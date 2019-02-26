@@ -7,6 +7,6 @@ import java.util.List;
 public interface EnrollmentCustomRepository {
   List<Enrollment> findByStudentId(Long studentId);
   List<Enrollment> findByCourseId(Long courseId);
-  Enrollment findByStudentIdAndCourseId(Long studentId, Long courseId);
+  Enrollment findByStudentIdAndCourseId(Long studentId, String courseId);
   List<Enrollment> insertBulk(List<Enrollment> enrollments);
 }

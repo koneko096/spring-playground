@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,7 +18,7 @@ public class StudentRegistration {
   @NotEmpty private String username;
   @ValidEmail private String email;
   @NotEmpty private String password;
-  @NotEmpty private Long nationalId;
-  @NotEmpty private Long facultyId;
-  @NotEmpty private Long programId;
+  @NotNull private Long nationalId;
+  @NotNull private Long facultyId;
+  @NotNull private Long programId;
 }
