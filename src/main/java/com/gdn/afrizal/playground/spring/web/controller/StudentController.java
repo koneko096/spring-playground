@@ -1,14 +1,19 @@
 package com.gdn.afrizal.playground.spring.web.controller;
 
+import com.gdn.afrizal.playground.spring.data.repository.CourseRepository;
 import com.gdn.afrizal.playground.spring.data.repository.EnrollmentRepository;
 import com.gdn.afrizal.playground.spring.data.repository.StudentAccountRepository;
 import com.gdn.afrizal.playground.spring.data.repository.StudentRepository;
+import com.gdn.afrizal.playground.spring.dto.StudentBulkEnrollment;
 import com.gdn.afrizal.playground.spring.dto.StudentEnrollment;
 import com.gdn.afrizal.playground.spring.dto.StudentRegistration;
 import com.gdn.afrizal.playground.spring.dto.validation.ValidationError;
+import com.gdn.afrizal.playground.spring.model.Course;
 import com.gdn.afrizal.playground.spring.model.Enrollment;
 import com.gdn.afrizal.playground.spring.model.Student;
 import com.gdn.afrizal.playground.spring.model.StudentAccount;
+import com.gdn.afrizal.playground.spring.service.EnrollmentService;
+import com.gdn.afrizal.playground.spring.web.config.Routes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,6 +42,8 @@ import java.util.List;
 @RestController
 public class StudentController {
 
+    private static final String STUDENT_ID = "studentId";
+
     @Autowired
     EnrollmentRepository enrollmentRepository;
 
@@ -44,7 +51,13 @@ public class StudentController {
     StudentRepository studentRepository;
 
     @Autowired
+    CourseRepository courseRepository;
+
+    @Autowired
     StudentAccountRepository studentAccountRepository;
+
+    @Autowired
+    EnrollmentService enrollmentService;
 
     private Long getStudentId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -66,26 +79,25 @@ public class StudentController {
         return createValidationError(exception);
     }
 
-    @RequestMapping(value = "/enrollment/{studentId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Enrollment> getEnrollments(@PathVariable("studentId") Long studentId) {
+    @RequestMapping(value = Routes.ENROLLMENT_OF_STUDENT, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Enrollment> getEnrollments(@PathVariable(STUDENT_ID) Long studentId) {
         return enrollmentRepository.findByStudentId(studentId);
     }
 
-    @RequestMapping(value = "/enrollment/{studentId}/{courseId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Enrollment> getEnrollment(@PathVariable("studentId") Long studentId,
+    @RequestMapping(value = Routes.ENROLLMENT_OF_STUDENT_COURSE, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Enrollment> getEnrollment(@PathVariable(STUDENT_ID) Long studentId,
         @PathVariable("courseId") Long courseId) {
-        return new ResponseEntity<Enrollment>(
-            enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId), HttpStatus.OK);
+        return new ResponseEntity<>(enrollmentRepository.findByStudentIdAndCourseId(studentId,
+            courseId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/student/{studentId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getStudent(@PathVariable("studentId") Long studentId) {
-        return new ResponseEntity<Student>(
-            studentRepository.findByStudentId(studentId), HttpStatus.OK);
+    @RequestMapping(value = Routes.STUDENT, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getStudent(@PathVariable(STUDENT_ID) Long studentId) {
+        return new ResponseEntity<>(studentRepository.findByStudentId(studentId), HttpStatus.OK);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @RequestMapping(value = "/student/register", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = Routes.REGISTER_STUDENT, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity registerStudent(@RequestBody @Valid StudentRegistration registration) {
         Date entryDate = GregorianCalendar.getInstance().getTime();
         Student student = Student.builder()
@@ -116,6 +128,25 @@ public class StudentController {
         }
 
         return new ResponseEntity(registration, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = Routes.PROGRAM_COURSES, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getCourseOfProgram(@PathVariable("programId") Long programId) {
+        return new ResponseEntity<List<Course>>(courseRepository.findCoursesByProgramId(programId), HttpStatus.OK);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @RequestMapping(value = Routes.ENROLL_STUDENTS, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity enrollStudents(@RequestBody StudentBulkEnrollment bulkEnrollment) {
+        List<Enrollment> enrollments = enrollmentService.enrollStudents(
+            bulkEnrollment.getCourseId(),
+            bulkEnrollment.getStudentIds());
+        if (enrollments == null) {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        bulkEnrollment.setEnrollments(enrollments);
+        return new ResponseEntity<>(enrollments, HttpStatus.OK);
     }
 
     private Long composeIdNum(Long programId, int year) {

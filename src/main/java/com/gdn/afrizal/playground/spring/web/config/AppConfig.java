@@ -1,4 +1,4 @@
-package com.gdn.afrizal.playground.spring.config;
+package com.gdn.afrizal.playground.spring.web.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;

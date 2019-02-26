@@ -8,4 +8,5 @@ public interface EnrollmentCustomRepository {
   List<Enrollment> findByStudentId(Long studentId);
   List<Enrollment> findByCourseId(Long courseId);
   Enrollment findByStudentIdAndCourseId(Long studentId, Long courseId);
+  List<Enrollment> insertBulk(List<Enrollment> enrollments);
 }
