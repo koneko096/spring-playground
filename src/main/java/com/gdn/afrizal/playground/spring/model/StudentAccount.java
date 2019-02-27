@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Date;
@@ -17,7 +15,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentAccount implements UserDetails {
+public class StudentAccount {
     private Long studentId;
     private Boolean active;
     private String email;
@@ -25,24 +23,4 @@ public class StudentAccount implements UserDetails {
     private String password;
     private Date createdAt;
     private Date modifiedAt;
-
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
-
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    public boolean isEnabled() {
-        return active;
-    }
 }
