@@ -18,8 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.core.Authentication;
+//import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,15 +53,15 @@ public class StudentController {
     @Autowired
     EnrollmentService enrollmentService;
 
-    private Long getStudentId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            return null;
-        }
-        String currentUserName = authentication.getName();
-        StudentAccount account = studentAccountRepository.findByUsername(currentUserName);
-        return account != null ? account.getStudentId() : null;
-    }
+//    private Long getStudentId() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+//            return null;
+//        }
+//        String currentUserName = authentication.getName();
+//        StudentAccount account = studentAccountRepository.findByUsername(currentUserName);
+//        return account != null ? account.getStudentId() : null;
+//    }
 
     private ValidationError createValidationError(MethodArgumentNotValidException e) {
         return ValidationError.fromBindingErrors(e.getBindingResult());
