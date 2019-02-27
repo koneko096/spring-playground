@@ -17,53 +17,58 @@ import java.util.stream.Collectors;
 
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
-  @Autowired
-  EnrollmentRepository enrollmentRepository;
+    @Autowired
+    EnrollmentRepository enrollmentRepository;
 
-  @Autowired
-  CourseRepository courseRepository;
+    @Autowired
+    CourseRepository courseRepository;
 
-  @Override
-  public List<StudentEnrollment> findByStudentId(Long studentId) {
-    List<Enrollment> enrollments = enrollmentRepository.findByStudentId(studentId);
-    List<String> courseIds = enrollments.stream()
-        .map(Enrollment::getCourseId).collect(Collectors.toList());
-    Map<String, Course> courseMap = courseRepository.findCoursesByCourseIds(courseIds).stream()
-        .collect(Collectors.toMap(
-            Course::getId,
-            Function.identity()
-        ));
-    return enrollments.stream().map(e -> StudentEnrollment.builder()
-        .enrollment(e)
-        .course(courseMap.get(e.getCourseId()))
-        .build()
-    ).collect(Collectors.toList());
-  }
+    @Override
+    public List<StudentEnrollment> findByStudentId(Long studentId) {
+        List<Enrollment> enrollments = enrollmentRepository.findByStudentId(studentId);
+        List<String> courseIds = enrollments.stream()
+                .map(Enrollment::getCourseId).collect(Collectors.toList());
+        Map<String, Course> courseMap = courseRepository.findCoursesByCourseIds(courseIds).stream()
+                .collect(Collectors.toMap(
+                        Course::getId,
+                        Function.identity()
+                ));
+        return enrollments.stream()
+                .map(enrollment -> buildStudentEnrollment(courseMap.get(enrollment.getCourseId()), enrollment))
+                .collect(Collectors.toList());
+    }
 
-  @Override
-  public StudentEnrollment findByStudentIdAndCourseId(Long studentId, String courseId) {
-    Enrollment enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId);
-    if (enrollment == null)
-      return null;
+    private StudentEnrollment buildStudentEnrollment(Course course, Enrollment enrollment) {
+        return StudentEnrollment.builder()
+                .enrollment(enrollment)
+                .course(course)
+                .build();
+    }
 
-    Course course = courseRepository.findByCourseId(courseId);
-    return StudentEnrollment.builder().course(course).enrollment(enrollment).build();
-  }
+    @Override
+    public StudentEnrollment findByStudentIdAndCourseId(Long studentId, String courseId) {
+        Enrollment enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId);
+        if (enrollment == null)
+            return null;
 
-  @Override
-  public List<Enrollment> enrollStudents(final String courseId, List<Long> studentIds) {
-    final Date enrollmentDate = Calendar.getInstance().getTime();
-    return enrollmentRepository.insertBulk(studentIds.stream()
-        .map(sid -> createEnrollment(courseId, sid, enrollmentDate))
-        .collect(Collectors.toList()));
-  }
+        Course course = courseRepository.findByCourseId(courseId);
+        return StudentEnrollment.builder().course(course).enrollment(enrollment).build();
+    }
 
-  private Enrollment createEnrollment(String courseId, Long sid, Date enrollmentDate) {
-    return Enrollment.builder()
-        .active(true)
-        .courseId(courseId)
-        .enrollmentDate(enrollmentDate)
-        .studentId(sid)
-        .build();
-  }
+    @Override
+    public List<Enrollment> enrollStudents(final String courseId, List<Long> studentIds) {
+        final Date enrollmentDate = Calendar.getInstance().getTime();
+        return enrollmentRepository.insertBulk(studentIds.stream()
+                .map(studentId -> buildEnrollment(courseId, studentId, enrollmentDate))
+                .collect(Collectors.toList()));
+    }
+
+    private Enrollment buildEnrollment(String courseId, Long studentId, Date enrollmentDate) {
+        return Enrollment.builder()
+                .active(true)
+                .courseId(courseId)
+                .enrollmentDate(enrollmentDate)
+                .studentId(studentId)
+                .build();
+    }
 }

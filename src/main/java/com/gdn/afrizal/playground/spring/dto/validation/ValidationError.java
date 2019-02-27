@@ -2,14 +2,14 @@ package com.gdn.afrizal.playground.spring.dto.validation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
+import org.springframework.validation.FieldError;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ValidationError {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  private List<String> errors = new ArrayList<String>();
+  private List<String> errors = new ArrayList<>();
 
   private final String errorMessage;
 
@@ -31,8 +31,8 @@ public class ValidationError {
 
   public static ValidationError fromBindingErrors(Errors errors) {
     ValidationError error = new ValidationError("Validation failed. " + errors.getErrorCount() + " error(s)");
-    for (ObjectError objectError : errors.getAllErrors()) {
-      error.addValidationError(objectError.getDefaultMessage());
+      for (FieldError fieldError : errors.getFieldErrors()) {
+          error.addValidationError(fieldError.getField() + " : " + fieldError.getDefaultMessage());
     }
     return error;
   }
