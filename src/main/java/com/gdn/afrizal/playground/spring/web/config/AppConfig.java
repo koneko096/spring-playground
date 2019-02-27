@@ -3,6 +3,10 @@ package com.gdn.afrizal.playground.spring.web.config;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -13,9 +17,14 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableWebMvc
+@EnableCaching
 @EnableMongoRepositories(basePackages = "com.gdn.afrizal.playground.spring.data.repository")
 @ComponentScan(basePackages = "com.gdn.afrizal.playground.spring")
 public class AppConfig extends AbstractMongoConfiguration {
+
+    private static final String COURSES = "courses";
+    private static final String STUDENTS = "students";
+    private static final String ENROLLMENTS = "enrollments";
 
   @Value("${spring.data.mongodb.database}")
   private String databaseName;
@@ -33,4 +42,9 @@ public class AppConfig extends AbstractMongoConfiguration {
   protected String getDatabaseName() {
     return databaseName;
   }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager(STUDENTS, COURSES, ENROLLMENTS);
+    }
 }

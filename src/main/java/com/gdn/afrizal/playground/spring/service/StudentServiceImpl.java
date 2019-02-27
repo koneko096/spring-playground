@@ -6,11 +6,17 @@ import com.gdn.afrizal.playground.spring.dto.StudentRegistration;
 import com.gdn.afrizal.playground.spring.model.Student;
 import com.gdn.afrizal.playground.spring.model.StudentAccount;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+@Service
+@CacheConfig(cacheNames = "students")
 public class StudentServiceImpl implements StudentService {
 
     @Autowired
@@ -20,6 +26,7 @@ public class StudentServiceImpl implements StudentService {
     StudentAccountRepository studentAccountRepository;
 
     @Override
+    @CachePut
     public StudentRegistration registerStudent(StudentRegistration registration) {
         Date entryDate = GregorianCalendar.getInstance().getTime();
         Student student = Student.builder()
@@ -53,11 +60,13 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @Cacheable
     public Student findByStudentId(Long studentId) {
         return studentRepository.findByStudentId(studentId);
     }
 
     @Override
+    @Cacheable
     public List<Student> findByProgramId(Long programId) {
         return studentRepository.findByProgramId(programId);
     }
